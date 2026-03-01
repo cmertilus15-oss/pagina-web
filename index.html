@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Cata Lunar | Full Experience</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Quicksand:wght@300;500;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Configuración de Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'lunar-dark': '#0f172a',
+                        'lunar-gold': '#d4af37',
+                        'fungi-green': '#3d5a45',
+                        'bamboo-light': '#e6e2d3',
+                        'purple-haze': '#2e2a3b'
+                    },
+                    fontFamily: {
+                        'display': ['Cinzel', 'serif'],
+                        'body': ['Quicksand', 'sans-serif'],
+                    },
+                    backgroundImage: {
+                        'star-pattern': "url('https://www.transparenttextures.com/patterns/stardust.png')",
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Estilos Base */
+        body {
+            background-color: #050505;
+            color: #e6e2d3;
+            overflow-x: hidden;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 5px; }
+
+        /* Marco Vintage (Santuarios) */
+        .vintage-frame {
+            position: relative;
+            padding: 10px;
+            border: 2px solid #d4af37;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+            transition: all 0.5s ease;
+            background: rgba(0,0,0,0.5);
+        }
+        .vintage-frame::before {
+            content: '';
+            position: absolute;
+            top: -5px; left: -5px; right: -5px; bottom: -5px;
+            border: 1px solid rgba(212, 175, 55, 0.5);
+            z-index: -1;
+        }
+        .vintage-frame:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 25px rgba(212, 175, 55, 0.6);
+            border-color: #fff;
+        }
+
+        /* Animaciones */
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 1s ease-out; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        @keyframes moonGlow {
+            0% { text-shadow: 0 0 5px #fff; }
+            50% { text-shadow: 0 0 20px #d4af37, 0 0 30px #fff; }
+            100% { text-shadow: 0 0 5px #fff; }
+        }
+        .glow-text { animation: moonGlow 3s infinite alternate; }
+
+        /* Navegación */
+        .glass-nav {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        /* Loader */
+        #loader {
+            position: fixed; inset: 0; background: #000; z-index: 9999;
+            display: flex; justify-content: center; align-items: center; flex-direction: column;
+            transition: opacity 1s ease;
+        }
+        .moon-phase { font-size: 3rem; color: #d4af37; animation: spinMoon 2s linear infinite; }
+        @keyframes spinMoon {
+            0% { content: '🌑'; transform: rotate(0deg); }
+            50% { content: '🌕'; transform: rotate(180deg); }
+            100% { content: '🌑'; transform: rotate(360deg); }
+        }
+
+        /* Oráculo */
+        .crystal-ball-glow {
+            box-shadow: 0 0 50px rgba(139, 92, 246, 0.2), inset 0 0 30px rgba(212, 175, 55, 0.1);
+            transition: all 0.5s ease;
+        }
+        .typing-cursor::after { content: '|'; animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* Botón Flotante Delivery */
+        .delivery-float {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+        .delivery-options {
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+            transition: all 0.3s ease;
+            position: absolute;
+            bottom: 100%;
+            right: 0;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .delivery-float:hover .delivery-options {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        /* Toast */
+        #toast {
+            visibility: hidden; min-width: 250px; background-color: #d4af37; color: #000;
+            text-align: center; border-radius: 4px; padding: 16px; position: fixed;
+            z-index: 100; left: 50%; bottom: 30px; transform: translateX(-50%);
+            font-family: 'Cinzel', serif; font-weight: bold;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+        }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+    </style>
+</head>
+<body class="font-body bg-star-pattern">
+
+    <!-- Preloader -->
+    <div id="loader">
+        <div class="moon-phase"><i class="fa-solid fa-moon"></i></div>
+        <h2 class="mt-4 font-display text-2xl text-lunar-gold tracking-widest">CARGANDO FASES...</h2>
+    </div>
+
+    <!-- Navegación -->
+    <nav class="glass-nav fixed w-full z-50 top-0 transition-all duration-300" id="navbar">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" class="flex items-center gap-3 group">
+                <svg class="w-12 h-12 text-lunar-gold group-hover:rotate-12 transition-transform duration-700" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M40 10C20 15 5 35 15 65C25 95 60 95 80 75" stroke="#d4af37" fill="none" stroke-width="3"/>
+                    <path d="M45 40 Q 60 40 75 40 L 60 80 L 45 40 Z" fill="#d4af37" opacity="0.8"/>
+                    <line x1="60" y1="80" x2="60" y2="95" stroke="#d4af37" stroke-width="2"/>
+                    <circle cx="60" cy="30" r="5" fill="#d4af37" class="animate-pulse"/>
+                </svg>
+                <div class="text-xl font-display font-bold tracking-widest text-white">
+                    CATA <span class="text-lunar-gold">LUNAR</span>
+                </div>
+            </a>
+            
+            <ul class="hidden md:flex space-x-8 font-display text-sm tracking-widest">
+                <li><a href="#narrativa" class="hover:text-lunar-gold transition-colors">ORIGEN</a></li>
+                <li><a href="#experiencia" class="hover:text-lunar-gold transition-colors">EXPERIENCIA</a></li>
+                <li><a href="#menu" class="hover:text-lunar-gold transition-colors">MENÚ</a></li>
+                <li><a href="#oraculo" class="text-purple-400 hover:text-lunar-gold transition-colors animate-pulse"><i class="fa-solid fa-sparkles"></i> ORÁCULO</a></li>
+                <li><a href="#santuarios" class="hover:text-lunar-gold transition-colors">SANTUARIOS</a></li>
+                <li><a href="#contacto" class="hover:text-lunar-gold transition-colors">RESERVA</a></li>
+            </ul>
+
+            <button id="mobile-menu-btn" class="md:hidden text-2xl text-lunar-gold focus:outline-none transition-transform duration-300">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+        
+        <div id="mobile-menu" class="hidden md:hidden bg-lunar-dark/95 backdrop-blur-xl border-t border-lunar-gold p-6 text-center shadow-2xl">
+            <a href="#narrativa" class="block py-3 hover:text-lunar-gold border-b border-white/10">ORIGEN</a>
+            <a href="#experiencia" class="block py-3 hover:text-lunar-gold border-b border-white/10">EXPERIENCIA</a>
+            <a href="#menu" class="block py-3 hover:text-lunar-gold border-b border-white/10">MENÚ</a>
+            <a href="#oraculo" class="block py-3 text-purple-400 font-bold border-b border-white/10"><i class="fa-solid fa-sparkles"></i> ORÁCULO</a>
+            <a href="#santuarios" class="block py-3 hover:text-lunar-gold border-b border-white/10">SANTUARIOS</a>
+            <a href="#contacto" class="block py-3 text-lunar-gold font-bold">RESERVA TU MESA</a>
+        </div>
+    </nav>
+
+    <!-- Botón Flotante Delivery -->
+    <div class="delivery-float group">
+        <div class="delivery-options">
+            <a href="https://wa.me/" target="_blank" class="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-green-500 transition-colors whitespace-nowrap font-display text-sm">
+                WhatsApp <i class="fa-brands fa-whatsapp text-lg"></i>
+            </a>
+            <a href="https://www.ubereats.com/" target="_blank" class="flex items-center gap-2 bg-black border border-lunar-gold text-white px-4 py-2 rounded-full shadow-lg hover:bg-gray-900 transition-colors whitespace-nowrap font-display text-sm">
+                Uber Eats <i class="fa-solid fa-utensils text-lg"></i>
+            </a>
+        </div>
+        <button class="bg-lunar-gold text-black w-14 h-14 rounded-full shadow-[0_0_20px_rgba(212,175,55,0.6)] flex items-center justify-center text-2xl hover:scale-110 transition-transform">
+            <i class="fa-solid fa-motorcycle"></i>
+        </button>
+    </div>
+
+    <!-- Header / Hero Section -->
+    <header class="relative h-screen flex items-center justify-center overflow-hidden">
+        <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1518066000714-58c45f1a2c0a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')] bg-cover bg-center opacity-40"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-black"></div>
+        
+        <div class="relative z-10 text-center px-4 reveal active">
+            <p class="font-display text-lunar-gold text-lg mb-4 tracking-[0.5em] uppercase">Donde la magia florece</p>
+            <h1 class="font-display text-5xl md:text-8xl font-black text-white mb-6 glow-text leading-tight">
+                CATA <br> <span class="italic font-light">LUNAR</span>
+            </h1>
+            <p class="max-w-2xl mx-auto text-gray-300 mb-8 font-light italic text-lg">
+                "Una danza entre el micelio, el bambú y las mareas."
+            </p>
+            <a href="#menu" class="inline-block px-8 py-3 border border-lunar-gold text-lunar-gold font-display tracking-widest hover:bg-lunar-gold hover:text-black transition-all duration-300">
+                EXPLORAR CARTA
+            </a>
+        </div>
+        <div class="absolute bottom-10 animate-bounce text-lunar-gold">
+            <i class="fa-solid fa-chevron-down text-2xl"></i>
+        </div>
+    </header>
+
+    <!-- 1. Narrativa -->
+    <section id="narrativa" class="py-24 relative overflow-hidden">
+        <div class="container mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+            <div class="reveal vintage-frame">
+                <div class="bg-gray-800 w-full h-[500px] flex items-center justify-center relative overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1598514930350-1c094406a096?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Bosque de bambú místico" class="object-cover w-full h-full opacity-70 hover:scale-110 transition-transform duration-1000">
+                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <span class="text-white font-display text-2xl bg-black/50 px-4 py-2 border border-lunar-gold">EL ORIGEN</span>
+                    </div>
+                </div>
+            </div>
+            <div class="reveal space-y-6 text-center md:text-left">
+                <i class="fa-solid fa-feather text-4xl text-lunar-gold"></i>
+                <h2 class="font-display text-4xl text-white">La Leyenda del Micelio Lunar</h2>
+                <div class="w-24 h-1 bg-lunar-gold mx-auto md:mx-0"></div>
+                <p class="text-gray-300 leading-relaxed text-lg">
+                    Restaurant Cata Lunar no nació de un plano arquitectónico, sino de un susurro en un bosque de bambú bajo la luna llena. Cuenta la leyenda que nuestro fundador descubrió un círculo de hongos bioluminiscentes.
+                </p>
+                <div class="flex gap-4 justify-center md:justify-start mt-6">
+                    <div class="text-center"><i class="fa-solid fa-moon text-lunar-gold text-xl"></i><span class="block text-xs mt-1 text-gray-400">Cíclico</span></div>
+                    <div class="text-center"><i class="fa-solid fa-leaf text-fungi-green text-xl"></i><span class="block text-xs mt-1 text-gray-400">Orgánico</span></div>
+                    <div class="text-center"><i class="fa-solid fa-wind text-gray-300 text-xl"></i><span class="block text-xs mt-1 text-gray-400">Etéreo</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. Información General -->
+    <section class="py-16 bg-lunar-dark border-y border-gray-800">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center reveal">
+                <div class="p-6 border border-gray-800 hover:border-lunar-gold transition-colors group">
+                    <i class="fa-solid fa-clock text-3xl text-lunar-gold mb-4 group-hover:spin"></i>
+                    <h3 class="font-display text-xl mb-2">Horario Nocturno</h3>
+                    <p class="text-sm text-gray-400">18:00 - 02:00</p>
+                </div>
+                <div class="p-6 border border-gray-800 hover:border-lunar-gold transition-colors group">
+                    <i class="fa-solid fa-utensils text-3xl text-lunar-gold mb-4"></i>
+                    <h3 class="font-display text-xl mb-2">Cocina de Autor</h3>
+                    <p class="text-sm text-gray-400">Fusión Botánica</p>
+                </div>
+                <div class="p-6 border border-gray-800 hover:border-lunar-gold transition-colors group">
+                    <i class="fa-solid fa-wine-glass text-3xl text-lunar-gold mb-4"></i>
+                    <h3 class="font-display text-xl mb-2">Mixología</h3>
+                    <p class="text-sm text-gray-400">Elixires lunares</p>
+                </div>
+                <div class="p-6 border border-gray-800 hover:border-lunar-gold transition-colors group">
+                    <i class="fa-solid fa-music text-3xl text-lunar-gold mb-4"></i>
+                    <h3 class="font-display text-xl mb-2">Atmósfera</h3>
+                    <p class="text-sm text-gray-400">Música en vivo</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. MENÚ COMPLETO (6 items por categoría) -->
+    <section id="menu" class="py-24 bg-[#0a0a0a] relative">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-purple-900 rounded-full blur-[100px] opacity-20"></div>
+        
+        <div class="container mx-auto px-6">
+            <h2 class="font-display text-4xl md:text-5xl text-center mb-4"><span class="text-lunar-gold">La Carta</span> del Eclipse</h2>
+            <p class="text-center text-gray-400 mb-12 font-body italic">Selecciona una fase para revelar los sabores</p>
+
+            <!-- Categorías -->
+            <div class="flex flex-wrap justify-center gap-4 mb-12 reveal">
+                <button onclick="filterMenu('entradas')" class="menu-tab px-6 py-2 border border-lunar-gold text-lunar-gold hover:bg-lunar-gold hover:text-black transition-all active-tab uppercase tracking-widest text-sm" data-category="entradas">Entradas</button>
+                <button onclick="filterMenu('fuertes')" class="menu-tab px-6 py-2 border border-gray-600 text-gray-400 hover:border-lunar-gold hover:text-lunar-gold transition-all uppercase tracking-widest text-sm" data-category="fuertes">Fuertes</button>
+                <button onclick="filterMenu('pesados')" class="menu-tab px-6 py-2 border border-gray-600 text-gray-400 hover:border-lunar-gold hover:text-lunar-gold transition-all uppercase tracking-widest text-sm" data-category="pesados">Pesados</button>
+                <button onclick="filterMenu('cocteles')" class="menu-tab px-6 py-2 border border-gray-600 text-gray-400 hover:border-lunar-gold hover:text-lunar-gold transition-all uppercase tracking-widest text-sm" data-category="cocteles">Cócteles</button>
+                <button onclick="filterMenu('jugos')" class="menu-tab px-6 py-2 border border-gray-600 text-gray-400 hover:border-lunar-gold hover:text-lunar-gold transition-all uppercase tracking-widest text-sm" data-category="jugos">Jugos</button>
+                <button onclick="filterMenu('postres')" class="menu-tab px-6 py-2 border border-gray-600 text-gray-400 hover:border-lunar-gold hover:text-lunar-gold transition-all uppercase tracking-widest text-sm" data-category="postres">Postres</button>
+            </div>
+
+            <!-- Grid del Menú -->
+            <div id="menu-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 reveal min-h-[400px]">
+                <!-- Contenido generado por JS -->
+            </div>
+            
+            <!-- Protocolo -->
+            <div class="mt-16 p-6 border border-dashed border-gray-600 text-center text-gray-400 text-sm max-w-2xl mx-auto">
+                <h4 class="font-display text-lunar-gold mb-2">PROTOCOLO ALIMENTICIO</h4>
+                <p>Nuestros platos contienen ingredientes del bosque y nueces. Por favor, informe a su mesero sobre cualquier alergia.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Oráculo -->
+    <section id="oraculo" class="py-24 relative overflow-hidden bg-[#0d0d14]">
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/black-scales.png')] opacity-30"></div>
+        
+        <div class="container mx-auto px-6 relative z-10 text-center">
+            <div class="mb-8 reveal">
+                <i class="fa-solid fa-sparkles text-4xl text-purple-400 mb-4 animate-bounce"></i>
+                <h2 class="font-display text-4xl text-white mb-2">El Oráculo <span class="text-purple-400">Lunar</span></h2>
+                <p class="text-gray-400 italic max-w-xl mx-auto">Confiesa tu estado de ánimo.</p>
+            </div>
+
+            <div class="max-w-3xl mx-auto bg-black/40 backdrop-blur-md border border-purple-900/50 p-8 rounded-xl crystal-ball-glow reveal">
+                <div class="mb-6 relative">
+                    <label class="block text-left text-xs text-lunar-gold uppercase tracking-widest mb-2 font-display">¿Cómo te sientes hoy?</label>
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <input type="text" id="userMood" placeholder="Ej: Melancólico, Energético..." class="flex-1 bg-[#1a1a24] border border-gray-700 text-white p-4 rounded-lg focus:border-purple-400 focus:outline-none transition-all placeholder-gray-600 font-body">
+                        <button onclick="consultarOraculo()" class="bg-purple-900 hover:bg-purple-700 text-white px-8 py-4 rounded-lg font-display tracking-widest transition-all border border-purple-500 shadow-[0_0_15px_rgba(168,85,247,0.3)]">CONSULTAR</button>
+                    </div>
+                </div>
+
+                <div id="oracleResponse" class="hidden min-h-[150px] border-t border-gray-800 pt-6 mt-6 text-left relative">
+                    <div id="oracleLoading" class="hidden absolute inset-0 flex flex-col items-center justify-center bg-black/80 z-20 rounded">
+                        <i class="fa-solid fa-circle-notch fa-spin text-3xl text-purple-400 mb-2"></i>
+                        <span class="text-xs text-purple-200 tracking-widest animate-pulse">CONTACTANDO ESPÍRITUS...</span>
+                    </div>
+                    <div class="space-y-4">
+                        <h3 class="text-lunar-gold font-display text-xl"><i class="fa-solid fa-scroll"></i> La Profecía:</h3>
+                        <p id="oracleText" class="text-gray-300 leading-relaxed font-light italic text-lg typing-cursor"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. SANTUARIOS (Con fotos enmarcadas y nombres) -->
+    <section id="santuarios" class="py-24 bg-lunar-dark overflow-hidden">
+        <div class="container mx-auto px-6 mb-12">
+            <h2 class="font-display text-4xl text-left border-l-4 border-lunar-gold pl-4">Nuestros <br> Santuarios</h2>
+        </div>
+        
+        <!-- Grid de Santuarios con Marcos Vintage -->
+        <div class="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <!-- Santuario 1 -->
+            <div class="reveal vintage-frame group cursor-pointer">
+                <div class="h-64 overflow-hidden relative">
+                    <img src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?ixlib=rb-4.0.3&w=600&q=80" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent opacity-90"></div>
+                    <div class="absolute bottom-4 left-4 border-l-2 border-lunar-gold pl-3">
+                        <h3 class="font-display text-xl text-white">La Barra Alquímica</h3>
+                        <p class="text-xs text-gray-400">Coctelería de Autor</p>
+                    </div>
+                </div>
+            </div>
+             <!-- Santuario 2 -->
+             <div class="reveal vintage-frame group cursor-pointer delay-100">
+                <div class="h-64 overflow-hidden relative">
+                    <img src="https://images.unsplash.com/photo-1559339352-11d035aa65de?ixlib=rb-4.0.3&w=600&q=80" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent opacity-90"></div>
+                    <div class="absolute bottom-4 left-4 border-l-2 border-lunar-gold pl-3">
+                        <h3 class="font-display text-xl text-white">Terraza Eclipse</h3>
+                        <p class="text-xs text-gray-400">Bajo las estrellas</p>
+                    </div>
+                </div>
+            </div>
+             <!-- Santuario 3 -->
+             <div class="reveal vintage-frame group cursor-pointer delay-200">
+                <div class="h-64 overflow-hidden relative">
+                    <img src="https://images.unsplash.com/photo-1550966871-3ed3c6227b3f?ixlib=rb-4.0.3&w=600&q=80" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent opacity-90"></div>
+                    <div class="absolute bottom-4 left-4 border-l-2 border-lunar-gold pl-3">
+                        <h3 class="font-display text-xl text-white">Salón Principal</h3>
+                        <p class="text-xs text-gray-400">El corazón del micelio</p>
+                    </div>
+                </div>
+            </div>
+             <!-- Santuario 4 -->
+             <div class="reveal vintage-frame group cursor-pointer delay-300">
+                <div class="h-64 overflow-hidden relative">
+                    <img src="https://images.unsplash.com/photo-1525610553991-2bede1a236e2?ixlib=rb-4.0.3&w=600&q=80" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent opacity-90"></div>
+                    <div class="absolute bottom-4 left-4 border-l-2 border-lunar-gold pl-3">
+                        <h3 class="font-display text-xl text-white">Cava Secreta</h3>
+                        <p class="text-xs text-gray-400">Reservada</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Referencias Visuales y Calidad (RECUPERADO) -->
+        <div class="container mx-auto px-6 mt-16 pb-12">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div class="text-center reveal flex flex-col items-center">
+                    <div class="w-20 h-20 mb-4 border-2 border-lunar-gold rounded-full flex items-center justify-center bg-black/50 hover:bg-lunar-gold hover:text-black transition-all duration-300">
+                        <i class="fa-solid fa-box-open text-2xl"></i>
+                    </div>
+                    <h4 class="font-display text-sm tracking-widest text-lunar-gold">Empaque <br> Biodegradable</h4>
+                </div>
+                <div class="text-center reveal flex flex-col items-center delay-100">
+                    <div class="w-20 h-20 mb-4 border-2 border-lunar-gold rounded-full flex items-center justify-center bg-black/50 hover:bg-lunar-gold hover:text-black transition-all duration-300">
+                        <i class="fa-solid fa-wine-bottle text-2xl"></i>
+                    </div>
+                    <h4 class="font-display text-sm tracking-widest text-lunar-gold">Cristalería <br> Lunar</h4>
+                </div>
+                <div class="text-center reveal flex flex-col items-center delay-200">
+                    <div class="w-20 h-20 mb-4 border-2 border-lunar-gold rounded-full flex items-center justify-center bg-black/50 hover:bg-lunar-gold hover:text-black transition-all duration-300">
+                        <i class="fa-solid fa-utensil-spoon text-2xl"></i>
+                    </div>
+                    <h4 class="font-display text-sm tracking-widest text-lunar-gold">Cubiertos <br> de Oro</h4>
+                </div>
+                <div class="text-center reveal flex flex-col items-center delay-300">
+                    <div class="w-20 h-20 mb-4 border-2 border-lunar-gold rounded-full flex items-center justify-center bg-black/50 hover:bg-lunar-gold hover:text-black transition-all duration-300">
+                        <i class="fa-solid fa-rug text-2xl"></i>
+                    </div>
+                    <h4 class="font-display text-sm tracking-widest text-lunar-gold">Servilletas <br> de Lino</h4>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. Contacto -->
+    <section id="contacto" class="py-24 relative bg-black">
+        <div class="container mx-auto px-6 grid md:grid-cols-2 gap-12">
+            <div>
+                <h2 class="font-display text-4xl mb-8">Encuéntranos</h2>
+                <div class="space-y-6 font-light text-gray-300">
+                    <p><i class="fa-solid fa-location-dot text-lunar-gold w-8"></i> Calle del Eclipse 404, Zona Colonial</p>
+                    <p><i class="fa-solid fa-phone text-lunar-gold w-8"></i> +1 (809) 555-MOON</p>
+                    <p><i class="fa-solid fa-envelope text-lunar-gold w-8"></i> reservas@catalunar.com</p>
+                </div>
+                <div class="mt-8 border border-gray-800 p-2 vintage-frame">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3784.576189524029!2d-69.8837266!3d18.4716768!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8eaf8801452249e7%3A0x67a3974416196f7e!2sSanto%20Domingo!5e0!3m2!1ses!2sdo" width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy" class="opacity-70 grayscale hover:grayscale-0 transition-all"></iframe>
+                </div>
+            </div>
+            
+            <div class="bg-[#111] p-8 border border-gray-800 relative">
+                <h3 class="font-display text-2xl mb-6 text-lunar-gold">Reserva tu experiencia</h3>
+                <form id="reservationForm" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="text" id="nombre" placeholder="Nombre" required class="w-full bg-black border border-gray-700 p-3 text-white focus:border-lunar-gold outline-none">
+                        <input type="text" id="apellido" placeholder="Apellido" required class="w-full bg-black border border-gray-700 p-3 text-white focus:border-lunar-gold outline-none">
+                    </div>
+                    <input type="email" id="email" placeholder="Email" required class="w-full bg-black border border-gray-700 p-3 text-white focus:border-lunar-gold outline-none">
+                    <input type="number" id="personas" placeholder="Número de personas" min="1" max="10" class="w-full bg-black border border-gray-700 p-3 text-white focus:border-lunar-gold outline-none">
+                    <input type="datetime-local" id="fecha" class="w-full bg-black border border-gray-700 p-3 text-white focus:border-lunar-gold outline-none scheme-dark">
+                    <button type="submit" class="w-full py-4 bg-lunar-gold text-black font-display font-bold tracking-widest hover:bg-white transition-colors">CONFIRMAR MESA</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-black py-8 border-t border-gray-900 text-center text-gray-500 text-sm">
+        <p>&copy; 2024 Cata Lunar. Todos los derechos reservados.</p>
+    </footer>
+
+    <div id="toast">¡Reserva guardada con éxito!</div>
+
+    <script>
+        // Init
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('loader');
+            loader.style.opacity = '0';
+            setTimeout(() => { loader.style.display = 'none'; }, 1000);
+            filterMenu('entradas');
+        });
+
+        // Menú Hamburguesa
+        const btnMenu = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuIcon = btnMenu.querySelector('i');
+
+        btnMenu.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            if(mobileMenu.classList.contains('hidden')) {
+                menuIcon.classList.remove('fa-xmark'); menuIcon.classList.add('fa-bars');
+            } else {
+                menuIcon.classList.remove('fa-bars'); menuIcon.classList.add('fa-xmark');
+            }
+        });
+
+        // Scroll Reveal
+        const revealElements = document.querySelectorAll('.reveal');
+        window.addEventListener('scroll', () => {
+            const windowHeight = window.innerHeight;
+            revealElements.forEach((reveal) => {
+                const elementTop = reveal.getBoundingClientRect().top;
+                if (elementTop < windowHeight - 150) reveal.classList.add('active');
+            });
+        });
+
+        // --- DATOS DEL MENÚ (6 items por categoría) ---
+        const menuItems = [
+            // ENTRADAS (6)
+            { category: 'entradas', name: 'Carpaccio de Hongo Azul', desc: 'Láminas finas con aceite de trufa y polvo de estrellas.', price: '$18' },
+            { category: 'entradas', name: 'Dumplings de Nebulosa', desc: 'Rellenos de camarón cristal y tinta de calamar.', price: '$15' },
+            { category: 'entradas', name: 'Ceviche Astral', desc: 'Pescado blanco marinado en leche de tigre de coco y flores.', price: '$16' },
+            { category: 'entradas', name: 'Tártaro de Raíz', desc: 'Remolacha asada, aguacate y perlas de yuzu.', price: '$14' },
+            { category: 'entradas', name: 'Gyozas de Pato', desc: 'Con salsa de ciruela negra y sésamo dorado.', price: '$17' },
+            { category: 'entradas', name: 'Croquetas de Boletus', desc: 'Cremosas por dentro, crujientes como meteoritos.', price: '$12' },
+
+            // PLATOS FUERTES (6)
+            { category: 'fuertes', name: 'Salmón de Marea Alta', desc: 'Parrilla con reducción de maracuyá y espárragos.', price: '$29' },
+            { category: 'fuertes', name: 'Pollo al Vacío', desc: 'Pechuga tierna con puré de coliflor trufado.', price: '$24' },
+            { category: 'fuertes', name: 'Pasta Fungi', desc: 'Pappardelle artesanal con ragú de setas silvestres.', price: '$22' },
+            { category: 'fuertes', name: 'Atún Sellado', desc: 'Costra de sésamo y ensalada de algas wakame.', price: '$28' },
+            { category: 'fuertes', name: 'Risotto de Calabaza', desc: 'Cremoso con queso de cabra y semillas tostadas.', price: '$23' },
+            { category: 'fuertes', name: 'Pesca del Día', desc: 'En salsa verde de hierbas del huerto lunar.', price: '$26' },
+
+            // PLATOS PESADOS (6)
+            { category: 'pesados', name: 'Risotto Eclipse Negro', desc: 'Arroz venere con tinta de calamar y vieiras gigantes.', price: '$32' },
+            { category: 'pesados', name: 'Tomahawk Estelar', desc: 'Corte premium de 1kg con mantequilla de hierbas.', price: '$85' },
+            { category: 'pesados', name: 'Costillas Galácticas', desc: 'Glaseadas en BBQ de mora y puré rústico.', price: '$35' },
+            { category: 'pesados', name: 'Cordero Místico', desc: 'Paletilla cocinada por 12 horas en su jugo.', price: '$38' },
+            { category: 'pesados', name: 'Lasaña de Jabalí', desc: 'Capas de pasta fresca y ragú de caza.', price: '$28' },
+            { category: 'pesados', name: 'Ossobuco Lunar', desc: 'Estofado lentamente con vino tinto y polenta.', price: '$34' },
+
+            // COCTELES (6)
+            { category: 'cocteles', name: 'Lágrima de Luna', desc: 'Gin, lavanda, tónica y humo de romero.', price: '$12' },
+            { category: 'cocteles', name: 'Supernova', desc: 'Mezcal, hibisco picante y sal volcánica.', price: '$14' },
+            { category: 'cocteles', name: 'Eclipse Total', desc: 'Ron añejo, carbón activado y piña asada.', price: '$13' },
+            { category: 'cocteles', name: 'Polvo de Hadas', desc: 'Vodka, glitter comestible y licor de violetas.', price: '$12' },
+            { category: 'cocteles', name: 'Nebulosa Verde', desc: 'Absenta, pepino, menta y lima.', price: '$15' },
+            { category: 'cocteles', name: 'Sol de Medianoche', desc: 'Tequila reposado, naranja sanguina y agave.', price: '$14' },
+
+            // JUGOS (6)
+            { category: 'jugos', name: 'Vía Láctea', desc: 'Batido de coco, almendras y vainilla.', price: '$8' },
+            { category: 'jugos', name: 'Agujero Negro', desc: 'Limonada de carbón activado y jengibre.', price: '$7' },
+            { category: 'jugos', name: 'Luz Estelar', desc: 'Maracuyá, mango y cúrcuma.', price: '$7' },
+            { category: 'jugos', name: 'Bosque Rojo', desc: 'Frutos rojos, remolacha y acai.', price: '$8' },
+            { category: 'jugos', name: 'Clorofila Pura', desc: 'Manzana verde, espinaca, apio y limón.', price: '$7' },
+            { category: 'jugos', name: 'Atardecer', desc: 'Zanahoria, naranja y jengibre.', price: '$6' },
+
+            // POSTRES (6)
+            { category: 'postres', name: 'Roca Lunar', desc: 'Esfera de choco blanco y mousse de pistacho.', price: '$11' },
+            { category: 'postres', name: 'Polvo Cósmico', desc: 'Milhojas deconstruido con crema negra.', price: '$10' },
+            { category: 'postres', name: 'Volcán de Chocolate', desc: 'Centro líquido de chocolate amargo 70%.', price: '$12' },
+            { category: 'postres', name: 'Jardín Zen', desc: 'Tierra de oreo, piedras de chocolate y matcha.', price: '$13' },
+            { category: 'postres', name: 'Cremoso de Maracuyá', desc: 'Con merengue quemado y flores.', price: '$9' },
+            { category: 'postres', name: 'Tarta de Queso Fungi', desc: 'Cheesecake con infusión sutil de setas dulces.', price: '$11' }
+        ];
+
+        function filterMenu(category) {
+            const grid = document.getElementById('menu-grid');
+            const buttons = document.querySelectorAll('.menu-tab');
+            
+            buttons.forEach(btn => {
+                if(btn.dataset.category === category) {
+                    btn.classList.add('bg-lunar-gold', 'text-black', 'border-lunar-gold');
+                    btn.classList.remove('text-gray-400', 'border-gray-600');
+                } else {
+                    btn.classList.remove('bg-lunar-gold', 'text-black', 'border-lunar-gold');
+                    btn.classList.add('text-gray-400', 'border-gray-600');
+                }
+            });
+
+            const filtered = menuItems.filter(item => item.category === category);
+            grid.innerHTML = filtered.map(item => `
+                <div class="bg-[#111] p-6 border border-gray-800 hover:border-lunar-gold transition-all hover:-translate-y-2 group">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="font-display text-xl text-white group-hover:text-lunar-gold transition-colors">${item.name}</h3>
+                        <span class="text-lunar-gold font-bold">${item.price}</span>
+                    </div>
+                    <p class="text-gray-400 font-light text-sm italic">${item.desc}</p>
+                </div>
+            `).join('');
+            
+            grid.classList.remove('active');
+            setTimeout(() => grid.classList.add('active'), 50);
+        }
+
+        // Oráculo
+        const respuestasOraculo = [
+            "La luna sugiere audacia: Prueba el Risotto Eclipse.",
+            "Tu aura vibra en tonos dulces: La Roca Lunar te espera.",
+            "El micelio detecta cansancio: Un cóctel Supernova te revivirá.",
+            "Las mareas están altas: Elige frutos del mar esta noche.",
+            "Calma tu espíritu con una entrada ligera de Hongo Azul."
+        ];
+
+        function consultarOraculo() {
+            const mood = document.getElementById('userMood').value;
+            const responseDiv = document.getElementById('oracleResponse');
+            const loading = document.getElementById('oracleLoading');
+            const text = document.getElementById('oracleText');
+            
+            if(!mood) return alert("Por favor, confiesa tu sentir primero...");
+
+            responseDiv.classList.remove('hidden');
+            loading.classList.remove('hidden'); loading.style.display = 'flex';
+            
+            setTimeout(() => {
+                loading.classList.add('hidden'); loading.style.display = 'none';
+                const random = Math.floor(Math.random() * respuestasOraculo.length);
+                text.innerText = `"${mood}"... interesante. ${respuestasOraculo[random]}`;
+            }, 1500);
+        }
+
+        // Formulario
+        const form = document.getElementById('reservationForm');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const data = {
+                nombre: document.getElementById('nombre').value,
+                timestamp: new Date().toISOString()
+            };
+            let reservas = JSON.parse(localStorage.getItem('cata_lunar_reservas') || '[]');
+            reservas.push(data);
+            localStorage.setItem('cata_lunar_reservas', JSON.stringify(reservas));
+            const toast = document.getElementById('toast');
+            toast.className = "show";
+            setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
+            form.reset();
+        });
+    </script>
+</body>
+</html>
